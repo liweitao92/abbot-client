@@ -98,6 +98,12 @@ export class StartupService {
             link: '/system/user',
             icon: 'anticon anticon-rocket',
             shortcutRoot: true
+          },
+          {
+            text: '菜单',
+            link: '/system/menu',
+            icon: 'anticon anticon-rocket',
+            shortcutRoot: true
           }
         ]
       }
