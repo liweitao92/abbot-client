@@ -44,7 +44,7 @@ export function fnDelonAuthConfig(): DelonAuthConfig {
 
 export function fnSTConfig(): STConfig {
   return Object.assign(new STConfig(), <STConfig>{
-    size: `small`,
+    size: `middle`,
     req: {
       reName: {
         pi: `pageIndex`,

@@ -5,13 +5,15 @@ import { SystemMenuComponent } from './menu/menu.component';
 import { SystemUserComponent } from './user/user.component';
 import { SystemUserEditComponent } from './user/edit/edit.component';
 import { SystemUserViewComponent } from './user/view/view.component';
+import { SystemMenuEditComponent } from './menu/edit/edit.component';
 
 const COMPONENTS = [
   SystemMenuComponent,
   SystemUserComponent];
 const COMPONENTS_NOROUNT = [
   SystemUserEditComponent,
-  SystemUserViewComponent];
+  SystemUserViewComponent,
+  SystemMenuEditComponent];
 
 @NgModule({
   imports: [

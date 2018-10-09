@@ -1,45 +1,140 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { _HttpClient, ModalHelper } from '@delon/theme';
-import { STColumn, STComponent } from '@delon/abc';
-import { SFSchema } from '@delon/form';
+import { SystemUserEditComponent } from '../user/edit/edit.component';
+import { ModalHelper } from '@delon/theme';
+import { SystemMenuEditComponent } from './edit/edit.component';
+
+export interface TreeNodeInterface {
+  key: number;
+  name: string;
+  age: number;
+  level: number;
+  expand: boolean;
+  address: string;
+  children?: TreeNodeInterface[];
+}
 
 @Component({
   selector: 'app-system-menu',
   templateUrl: './menu.component.html',
 })
 export class SystemMenuComponent implements OnInit {
-  url = `/menu`;
-  searchSchema: SFSchema = {
-    properties: {
-      no: {
-        type: 'string',
-        title: '编号'
-      }
-    }
-  };
-  @ViewChild('st') st: STComponent;
-  columns: STColumn[] = [
-    { title: '编号', index: 'no' },
-    { title: '调用次数', type: 'number', index: 'callNo' },
-    { title: '头像', type: 'img', width: '50px', index: 'avatar' },
-    { title: '时间', type: 'date', index: 'updatedAt' },
+
+
+  constructor(private modal: ModalHelper) {}
+
+  data = [
     {
-      title: '',
-      buttons: [
-        // { text: '查看', click: (item: any) => `/form/${item.id}` },
-        // { text: '编辑', type: 'static', component: FormEditComponent, click: 'reload' },
+      key     : 1,
+      name    : 'John Brown sr.',
+      age     : 60,
+      address : 'New York No. 1 Lake Park',
+      children: [
+        {
+          key    : 11,
+          name   : 'John Brown',
+          age    : 42,
+          address: 'New York No. 2 Lake Park'
+        },
+        {
+          key     : 12,
+          name    : 'John Brown jr.',
+          age     : 30,
+          address : 'New York No. 3 Lake Park',
+          children: [ {
+            key    : 121,
+            name   : 'Jimmy Brown',
+            age    : 16,
+            address: 'New York No. 3 Lake Park'
+          } ]
+        },
+        {
+          key     : 13,
+          name    : 'Jim Green sr.',
+          age     : 72,
+          address : 'London No. 1 Lake Park',
+          children: [
+            {
+              key     : 131,
+              name    : 'Jim Green',
+              age     : 42,
+              address : 'London No. 2 Lake Park',
+              children: [
+                {
+                  key    : 1311,
+                  name   : 'Jim Green jr.',
+                  age    : 25,
+                  address: 'London No. 3 Lake Park'
+                },
+                {
+                  key    : 1312,
+                  name   : 'Jimmy Green sr.',
+                  age    : 18,
+                  address: 'London No. 4 Lake Park'
+                }
+              ]
+            }
+          ]
+        }
       ]
+    },
+    {
+      key    : 2,
+      name   : 'Joe Black',
+      age    : 32,
+      address: 'Sidney No. 1 Lake Park'
     }
   ];
+  expandDataCache = {};
 
-  constructor(private http: _HttpClient, private modal: ModalHelper) { }
-
-  ngOnInit() { }
-
-  add() {
-    // this.modal
-    //   .createStatic(FormEditComponent, { i: { id: 0 } })
-    //   .subscribe(() => this.st.reload());
+  collapse(array: TreeNodeInterface[], data: TreeNodeInterface, $event: boolean): void {
+    if ($event === false) {
+      if (data.children) {
+        data.children.forEach(d => {
+          const target = array.find(a => a.key === d.key);
+          target.expand = false;
+          this.collapse(array, target, false);
+        });
+      } else {
+        return;
+      }
+    }
   }
 
+  convertTreeToList(root: object): TreeNodeInterface[] {
+    const stack = [];
+    const array = [];
+    const hashMap = {};
+    stack.push({ ...root, level: 0, expand: false });
+
+    while (stack.length !== 0) {
+      const node = stack.pop();
+      this.visitNode(node, hashMap, array);
+      if (node.children) {
+        for (let i = node.children.length - 1; i >= 0; i--) {
+          stack.push({ ...node.children[ i ], level: node.level + 1, expand: false, parent: node });
+        }
+      }
+    }
+
+    return array;
+  }
+
+  visitNode(node: TreeNodeInterface, hashMap: object, array: TreeNodeInterface[]): void {
+    if (!hashMap[ node.key ]) {
+      hashMap[ node.key ] = true;
+      array.push(node);
+    }
+  }
+
+  ngOnInit(): void {
+    this.data.forEach(item => {
+      this.expandDataCache[ item.key ] = this.convertTreeToList(item);
+    });
+  }
+
+  add() {
+    this.modal
+      .createStatic(SystemMenuEditComponent, { i: { id: 0 } })
+      .subscribe(() => alert(1));
+  }
 }
